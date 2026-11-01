@@ -1,9 +1,11 @@
 resource "aws_ecs_cluster" "main" {
   name = var.project_name
-  setting {
-    name = "containerInsights"
-    value = "disabled"
-  }
+ 
+setting {
+  name  = "containerInsights"
+  value = "enabled"
+}
+
   tags = local.tags
 }
 data "aws_iam_policy_document" "ecs_assume" {
@@ -130,6 +132,7 @@ resource "aws_ecs_task_definition" "api" {
     name = "api"
     image = "${aws_ecr_repository.app.repository_url}:${var.image_tag}"
     essential = true
+    readonlyRootFilesystem = true
     portMappings = [{
       containerPort = 8000, hostPort = 8000, protocol = "tcp"
     }]
@@ -168,11 +171,13 @@ resource "aws_ecs_task_definition" "worker" {
   memory                   = 512
   execution_role_arn       = aws_iam_role.execution.arn
   task_role_arn            = aws_iam_role.worker.arn
-  container_definitions = jsonencode([{
-    name = "worker"
-    image = "${aws_ecr_repository.app.repository_url}:${var.image_tag}"
-    essential = true
-    command = ["python", "-m", "app.worker"]
+  
+container_definitions = jsonencode([{
+  name                   = "worker"
+  image                  = "${aws_ecr_repository.app.repository_url}:${var.image_tag}"
+  essential              = true
+  readonlyRootFilesystem = true
+  command                = ["python", "-m", "app.worker"]
     environment = [
     {
       name = "QUEUE_URL", value = aws_sqs_queue.orders.url
