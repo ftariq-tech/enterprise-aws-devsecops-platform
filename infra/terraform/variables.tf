@@ -10,6 +10,18 @@ variable "project_name" {
     error_message = "Use 4–25 lowercase letters, numbers and hyphens; start with a letter."
   }
 }
+# Explicit AZ names avoid silently selecting a new AZ when the AWS region expands.
+# Update these for the target account/region before deploying.
+variable "availability_zones" {
+  type        = list(string)
+  description = "Exactly two stable AZ names in the selected AWS region; verify them in your AWS account."
+  default     = ["us-east-1a", "us-east-1b"]
+  validation {
+    condition     = length(var.availability_zones) == 2 && length(distinct(var.availability_zones)) == 2
+    error_message = "Provide exactly two distinct Availability Zone names."
+  }
+}
+
 variable "vpc_cidr" {
   type = string
   default = "10.42.0.0/16"
@@ -58,7 +70,7 @@ variable "worker_desired_count" {
   default = 1
 }
 locals {
-  azs  = slice(data.aws_availability_zones.available.names, 0, 2)
+  azs  = var.availability_zones
   tags = {
     Project = var.project_name, Environment = "portfolio-demo", ManagedBy = "Terraform"
   }

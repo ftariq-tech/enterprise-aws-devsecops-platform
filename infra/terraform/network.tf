@@ -6,6 +6,12 @@ resource "aws_vpc" "main" {
     Name = "${var.project_name}-vpc"
   })
 }
+# Adopt and lock down the VPC default security group (no ingress or egress rules).
+resource "aws_default_security_group" "restricted" {
+  vpc_id = aws_vpc.main.id
+  tags   = local.tags
+}
+
 resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
   tags   = merge(local.tags, {
@@ -75,11 +81,13 @@ resource "aws_route_table_association" "private" {
   route_table_id = aws_route_table.private.id
 }
 resource "aws_security_group" "alb" {
+  description = "Allow inbound HTTPS to application load balancer"
   name_prefix = "${var.project_name}-alb-"
   vpc_id      = aws_vpc.main.id
   tags        = local.tags
 }
 resource "aws_security_group" "tasks" {
+  description = "Restrict ECS traffic to ALB ingress and required egress"
   name_prefix = "${var.project_name}-ecs-"
   vpc_id      = aws_vpc.main.id
   tags        = local.tags

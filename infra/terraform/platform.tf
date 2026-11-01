@@ -5,7 +5,8 @@ resource "aws_ecr_repository" "app" {
     scan_on_push = true
   }
   encryption_configuration {
-    encryption_type = "AES256"
+    encryption_type = "KMS"
+    kms_key         = aws_kms_key.ecr.arn
   }
   tags = local.tags
 }
@@ -60,18 +61,21 @@ resource "aws_dynamodb_table" "orders" {
     enabled = true
   }
   server_side_encryption {
-    enabled = true
+    enabled     = true
+    kms_key_arn = aws_kms_key.dynamodb.arn
   }
   tags = local.tags
 }
 resource "aws_cloudwatch_log_group" "api" {
   name              = "/ecs/${var.project_name}/api"
-  retention_in_days = 14
+  retention_in_days = 365
+  kms_key_id        = aws_kms_key.logs.arn
   tags = local.tags
 }
 resource "aws_cloudwatch_log_group" "worker" {
   name              = "/ecs/${var.project_name}/worker"
-  retention_in_days = 14
+  retention_in_days = 365
+  kms_key_id        = aws_kms_key.logs.arn
   tags = local.tags
 }
 resource "aws_cloudwatch_metric_alarm" "dlq_visible" {
