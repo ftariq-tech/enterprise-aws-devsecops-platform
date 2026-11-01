@@ -1,0 +1,11 @@
+aws_region                    = "us-east-1"
+project_name                  = "orders-devsecops-demo"
+github_repository             = "YOUR_GITHUB_USERNAME/aws-event-driven-devsecops-portfolio"
+enable_runtime               = false
+enable_github_deploy_role    = false
+create_github_oidc_provider  = false
+# Optional after ECR image and HTTPS/secret are prepared:
+# enable_runtime        = true
+# image_tag             = "sha-abcdef123456"
+# acm_certificate_arn   = "arn:aws:acm:REGION:ACCOUNT:certificate/UUID"
+# api_token_secret_arn  = "arn:aws:secretsmanager:REGION:ACCOUNT:secret:NAME"

@@ -1,0 +1,16 @@
+flowchart TB
+  GH[GitHub Actions CI / Manual OIDC Release] --> ECR[Amazon ECR - immutable image]
+  CLIENT[HTTPS Client + X-API-Key] --> ALB[Public Application Load Balancer HTTPS]
+  subgraph VPC[AWS VPC - Two AZs]
+    ALB --> API[ECS Fargate API - private subnets]
+    API --> SQS[SQS Order Queue]
+    SQS --> WORKER[ECS Fargate Worker - private subnets]
+    SQS --> DLQ[Dead Letter Queue]
+    WORKER --> DDB[DynamoDB - conditional idempotent write]
+    API -. Read result .-> DDB
+  end
+  ECR -. Image pulls .-> API
+  ECR -. Image pulls .-> WORKER
+  API --> LOGS[CloudWatch Logs]
+  WORKER --> LOGS
+  DLQ --> ALARM[CloudWatch Alarm - no SNS destination yet]

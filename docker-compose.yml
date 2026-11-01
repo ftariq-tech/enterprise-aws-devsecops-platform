@@ -1,0 +1,11 @@
+services:
+  api:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      BACKEND: memory
+      ORDERS_API_TOKEN: local-demo-token-change-me
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]

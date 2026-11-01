@@ -1,0 +1,11 @@
+.git
+.github
+infra
+tests
+docs
+.pytest_cache
+__pycache__
+*.pyc
+*.tfstate*
+*.tfvars
+.env
