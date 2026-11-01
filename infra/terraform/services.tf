@@ -147,10 +147,9 @@ resource "aws_ecs_task_definition" "api" {
       name = "AWS_DEFAULT_REGION", value = var.aws_region
     }
     ]
-    secrets = var.api_token_secret_arn != "" ? [{
-      name = "ORDERS_API_TOKEN", valueFrom = var.api_token_secret_arn
-    }]
-    : []
+   
+secrets = var.api_token_secret_arn != "" ? [{ name = "ORDERS_API_TOKEN", valueFrom = var.api_token_secret_arn }] : []
+
     logConfiguration = {
       logDriver = "awslogs", options = {
         awslogs-group = aws_cloudwatch_log_group.api.name,
