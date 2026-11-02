@@ -32,8 +32,7 @@ data "aws_iam_policy_document" "logs_kms" {
       test     = "ArnLike"
       variable = "kms:EncryptionContext:aws:logs:arn"
       values = [
-        "arn:${data.aws_partition.current.partition}:logs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:log-group:/ecs/${var.project_name}/*",
-        "arn:${data.aws_partition.current.partition}:logs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:log-group:/vpc/${var.project_name}/*"
+        "arn:${data.aws_partition.current.partition}:logs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:log-group:/ecs/${var.project_name}/*"
       ]
     }
   }
@@ -52,18 +51,6 @@ resource "aws_kms_key" "dynamodb" {
   deletion_window_in_days = 30
   enable_key_rotation     = true
   tags                    = local.tags
-  # In a KMS KEY policy, Resource = "*" means THIS KEY (AWS documented).
-  # Account root enables IAM-based permissions; deployment principal must have matching IAM grants.
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Sid       = "EnableAccountIAMPermissions"
-      Effect    = "Allow"
-      Principal = { AWS = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:root" }
-      Action    = "kms:*"
-      Resource  = "*"
-    }]
-  })
 }
 
 resource "aws_kms_key" "ecr" {
@@ -71,16 +58,4 @@ resource "aws_kms_key" "ecr" {
   deletion_window_in_days = 30
   enable_key_rotation     = true
   tags                    = local.tags
-  # In a KMS KEY policy, Resource = "*" means THIS KEY (AWS documented).
-  # Account root enables IAM-based permissions; deployment principal must have matching IAM grants.
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Sid       = "EnableAccountIAMPermissions"
-      Effect    = "Allow"
-      Principal = { AWS = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:root" }
-      Action    = "kms:*"
-      Resource  = "*"
-    }]
-  })
 }
